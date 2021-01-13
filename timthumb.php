@@ -24,7 +24,7 @@ error_reporting(0);
 */
 define('VERSION', '2.8.14');                                                                        // Version of this script
 //Load a config file if it exists. Otherwise, use the values below
-if (file_exists(dirname(__FILE__).'/timthumb-config.php')) {
+if (file_exists(dirname(__FILE__) . '/timthumb-config.php')) {
     require_once 'timthumb-config.php';
 }
 if (!defined('DEBUG_ON')) {
@@ -292,11 +292,11 @@ class timthumb
         global $ALLOWED_SITES;
         $this->startTime = microtime(true);
         date_default_timezone_set('UTC');
-        $this->debug(1, 'Starting new request from '.$this->getIP().' to '.$_SERVER['REQUEST_URI']);
+        $this->debug(1, 'Starting new request from ' . $this->getIP() . ' to ' . $_SERVER['REQUEST_URI']);
         $this->calcDocRoot();
         //On windows systems I'm assuming fileinode returns an empty string or a number that doesn't change. Check this.
-        $this->salt = @filemtime(__FILE__).'-'.@fileinode(__FILE__);
-        $this->debug(3, 'Salt is: '.$this->salt);
+        $this->salt = @filemtime(__FILE__) . '-' . @fileinode(__FILE__);
+        $this->debug(3, 'Salt is: ' . $this->salt);
         if (FILE_CACHE_DIRECTORY) {
             if (!is_dir(FILE_CACHE_DIRECTORY)) {
                 @mkdir(FILE_CACHE_DIRECTORY);
@@ -307,7 +307,7 @@ class timthumb
                 }
             }
             $this->cacheDirectory = FILE_CACHE_DIRECTORY;
-            if (!touch($this->cacheDirectory.'/index.html')) {
+            if (!touch($this->cacheDirectory . '/index.html')) {
                 $this->error('Could not create the index.html file - to fix this create an empty file named index.html file in the cache directory.');
             }
         } else {
@@ -319,7 +319,7 @@ class timthumb
         $this->myHost = preg_replace('/^www\./i', '', $_SERVER['HTTP_HOST']);
         $this->src = $this->param('src');
         $this->url = parse_url($this->src);
-        $this->src = preg_replace('/https?:\/\/(?:www\.)?'.$this->myHost.'/i', '', $this->src);
+        $this->src = preg_replace('/https?:\/\/(?:www\.)?' . $this->myHost . '/i', '', $this->src);
 
         if (strlen($this->src) <= 3) {
             $this->error('No image specified');
@@ -327,25 +327,25 @@ class timthumb
             return false;
         }
 
-        if (BLOCK_EXTERNAL_LEECHERS && array_key_exists('HTTP_REFERER', $_SERVER) && (!preg_match('/^https?:\/\/(?:www\.)?'.$this->myHost.'(?:$|\/)/i', $_SERVER['HTTP_REFERER']))) {
+        if (BLOCK_EXTERNAL_LEECHERS && array_key_exists('HTTP_REFERER', $_SERVER) && (!preg_match('/^https?:\/\/(?:www\.)?' . $this->myHost . '(?:$|\/)/i', $_SERVER['HTTP_REFERER']))) {
             // base64 encoded red image that says 'no hotlinkers'
             // nothing to worry about! :)
             $imgData = base64_decode("R0lGODlhUAAMAIAAAP8AAP///yH5BAAHAP8ALAAAAABQAAwAAAJpjI+py+0Po5y0OgAMjjv01YUZ\nOGplhWXfNa6JCLnWkXplrcBmW+spbwvaVr/cDyg7IoFC2KbYVC2NQ5MQ4ZNao9Ynzjl9ScNYpneb\nDULB3RP6JuPuaGfuuV4fumf8PuvqFyhYtjdoeFgAADs=");
             header('Content-Type: image/gif');
-            header('Content-Length: '.strlen($imgData));
+            header('Content-Length: ' . strlen($imgData));
             header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
             header('Pragma: no-cache');
-            header('Expires: '.gmdate('D, d M Y H:i:s', time()));
+            header('Expires: ' . gmdate('D, d M Y H:i:s', time()));
             echo $imgData;
 
             return false;
             exit(0);
         }
         if (preg_match('/^https?:\/\/[^\/]+/i', $this->src)) {
-            $this->debug(2, 'Is a request for an external URL: '.$this->src);
+            $this->debug(2, 'Is a request for an external URL: ' . $this->src);
             $this->isURL = true;
         } else {
-            $this->debug(2, 'Is a request for an internal file: '.$this->src);
+            $this->debug(2, 'Is a request for an internal file: ' . $this->src);
         }
         if ($this->isURL && (!ALLOW_EXTERNAL)) {
             $this->error('You are not allowed to fetch images from an external website.');
@@ -373,9 +373,9 @@ class timthumb
         $cachePrefix = ($this->isURL ? '_ext_' : '_int_');
 
         if ($this->isURL) {
-            $arr = explode('&', $_SERVER ['QUERY_STRING']);
+            $arr = explode('&', $_SERVER['QUERY_STRING']);
             asort($arr);
-            $this->cachefile = $this->cacheDirectory.'/'.FILE_CACHE_PREFIX.$cachePrefix.md5($this->salt.implode('', $arr).$this->fileCacheVersion).FILE_CACHE_SUFFIX;
+            $this->cachefile = $this->cacheDirectory . '/' . FILE_CACHE_PREFIX . $cachePrefix . md5($this->salt . implode('', $arr) . $this->fileCacheVersion) . FILE_CACHE_SUFFIX;
         } else {
             $this->localImage = $this->getLocalImagePath($this->src);
 
@@ -390,9 +390,9 @@ class timthumb
             $this->debug(1, "Local image path is {$this->localImage}");
             $this->localImageMTime = @filemtime($this->localImage);
             //We include the mtime of the local file in case in changes on disk.
-            $this->cachefile = $this->cacheDirectory.'/'.FILE_CACHE_PREFIX.$cachePrefix.md5($this->salt.$this->localImageMTime.$_SERVER ['QUERY_STRING'].$this->fileCacheVersion).FILE_CACHE_SUFFIX;
+            $this->cachefile = $this->cacheDirectory . '/' . FILE_CACHE_PREFIX . $cachePrefix . md5($this->salt . $this->localImageMTime . $_SERVER['QUERY_STRING'] . $this->fileCacheVersion) . FILE_CACHE_SUFFIX;
         }
-        $this->debug(2, 'Cache file is: '.$this->cachefile);
+        $this->debug(2, 'Cache file is: ' . $this->cachefile);
 
         return true;
     }
@@ -493,7 +493,7 @@ class timthumb
                 return false;
             } else { //Otherwise serve a 304
                 $this->debug(3, 'File has not been modified since last get, so serving a 304.');
-                header($_SERVER['SERVER_PROTOCOL'].' 304 Not Modified');
+                header($_SERVER['SERVER_PROTOCOL'] . ' 304 Not Modified');
                 $this->debug(1, 'Returning 304 not modified');
 
                 return true;
@@ -513,7 +513,7 @@ class timthumb
                     $this->debug(3, 'Found an empty cachefile indicating a failed earlier request. Checking how old it is.');
                     //Fetching error occured previously
                     if (time() - @filemtime($this->cachefile) > WAIT_BETWEEN_FETCH_ERRORS) {
-                        $this->debug(3, 'File is older than '.WAIT_BETWEEN_FETCH_ERRORS.' seconds. Deleting and returning false so app can try and load file.');
+                        $this->debug(3, 'File is older than ' . WAIT_BETWEEN_FETCH_ERRORS . ' seconds. Deleting and returning false so app can try and load file.');
                         @unlink($this->cachefile);
 
                         return false; //to indicate we didn't serve from cache and app should try and load
@@ -558,18 +558,18 @@ class timthumb
     }
     protected function serveErrors()
     {
-        header($_SERVER['SERVER_PROTOCOL'].' 400 Bad Request');
+        header($_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request');
         if (!DISPLAY_ERROR_MESSAGES) {
             return;
         }
         $html = '<ul>';
         foreach ($this->errors as $err) {
-            $html .= '<li>'.htmlentities($err).'</li>';
+            $html .= '<li>' . htmlentities($err) . '</li>';
         }
         $html .= '</ul>';
-        echo '<h1>A TimThumb error has occured</h1>The following error(s) occured:<br />'.$html.'<br />';
-        echo '<br />Query String : '.htmlentities($_SERVER['QUERY_STRING'], ENT_QUOTES);
-        echo '<br />TimThumb version : '.VERSION.'</pre>';
+        echo '<h1>A TimThumb error has occured</h1>The following error(s) occured:<br />' . $html . '<br />';
+        echo '<br />Query String : ' . htmlentities($_SERVER['QUERY_STRING'], ENT_QUOTES);
+        echo '<br />TimThumb version : ' . VERSION . '</pre>';
     }
     protected function serveInternalImage()
     {
@@ -605,7 +605,7 @@ class timthumb
             return;
         }
         $this->debug(3, 'cleanCache() called');
-        $lastCleanFile = $this->cacheDirectory.'/timthumb_cacheLastCleanTime.touch';
+        $lastCleanFile = $this->cacheDirectory . '/timthumb_cacheLastCleanTime.touch';
 
         //If this is a new timthumb installation we need to create the file
         if (!is_file($lastCleanFile)) {
@@ -617,17 +617,17 @@ class timthumb
             return;
         }
         if (@filemtime($lastCleanFile) < (time() - FILE_CACHE_TIME_BETWEEN_CLEANS)) { //Cache was last cleaned more than 1 day ago
-            $this->debug(1, 'Cache was last cleaned more than '.FILE_CACHE_TIME_BETWEEN_CLEANS.' seconds ago. Cleaning now.');
+            $this->debug(1, 'Cache was last cleaned more than ' . FILE_CACHE_TIME_BETWEEN_CLEANS . ' seconds ago. Cleaning now.');
             // Very slight race condition here, but worst case we'll have 2 or 3 servers cleaning the cache simultaneously once a day.
             if (!touch($lastCleanFile)) {
                 $this->error('Could not create cache clean timestamp file.');
             }
-            $files = glob($this->cacheDirectory.'/*'.FILE_CACHE_SUFFIX);
+            $files = glob($this->cacheDirectory . '/*' . FILE_CACHE_SUFFIX);
             if ($files) {
                 $timeAgo = time() - FILE_CACHE_MAX_FILE_AGE;
                 foreach ($files as $file) {
                     if (@filemtime($file) < $timeAgo) {
-                        $this->debug(3, "Deleting cache file $file older than max age: ".FILE_CACHE_MAX_FILE_AGE.' seconds');
+                        $this->debug(3, "Deleting cache file $file older than max age: " . FILE_CACHE_MAX_FILE_AGE . ' seconds');
                         @unlink($file);
                     }
                 }
@@ -635,7 +635,7 @@ class timthumb
 
             return true;
         } else {
-            $this->debug(3, 'Cache was cleaned less than '.FILE_CACHE_TIME_BETWEEN_CLEANS.' seconds ago so no cleaning needed.');
+            $this->debug(3, 'Cache was cleaned less than ' . FILE_CACHE_TIME_BETWEEN_CLEANS . ' seconds ago so no cleaning needed.');
         }
 
         return false;
@@ -730,7 +730,7 @@ class timthumb
         imagealphablending($canvas, false);
 
         if (strlen($canvas_color) == 3) { //if is 3-char notation, edit string into 6-char notation
-            $canvas_color = str_repeat(substr($canvas_color, 0, 1), 2).str_repeat(substr($canvas_color, 1, 1), 2).str_repeat(substr($canvas_color, 2, 1), 2);
+            $canvas_color = str_repeat(substr($canvas_color, 0, 1), 2) . str_repeat(substr($canvas_color, 1, 1), 2) . str_repeat(substr($canvas_color, 2, 1), 2);
         } elseif (strlen($canvas_color) != 6) {
             $canvas_color = DEFAULT_CC; // on error return default canvas color
         }
@@ -849,7 +849,6 @@ class timthumb
 
                             imagefilter($canvas, $imageFilters[$filterSettings[0]][0]);
                             break;
-
                     }
                 }
             }
@@ -930,12 +929,12 @@ class timthumb
         $tempfile4 = tempnam($this->cacheDirectory, 'timthumb_tmpimg_');
         $context = stream_context_create();
         $fp = fopen($tempfile, 'r', 0, $context);
-        file_put_contents($tempfile4, $this->filePrependSecurityBlock.$imgType.' ?'.'>'); //6 extra bytes, first 3 being image type
+        file_put_contents($tempfile4, $this->filePrependSecurityBlock . $imgType . ' ?' . '>'); //6 extra bytes, first 3 being image type
         file_put_contents($tempfile4, $fp, FILE_APPEND);
         fclose($fp);
         @unlink($tempfile);
         $this->debug(3, 'Locking and replacing cache file.');
-        $lockFile = $this->cachefile.'.lock';
+        $lockFile = $this->cachefile . '.lock';
         $fh = fopen($lockFile, 'w');
         if (!$fh) {
             return $this->error('Could not open the lockfile for writing an image.');
@@ -982,7 +981,7 @@ class timthumb
         if ($docRoot && $_SERVER['DOCUMENT_ROOT'] != '/') {
             $docRoot = preg_replace('/\/$/', '', $docRoot);
         }
-        $this->debug(3, 'Doc root is: '.$docRoot);
+        $this->debug(3, 'Doc root is: ' . $docRoot);
         $this->docRoot = $docRoot;
     }
     protected function getLocalImagePath($src)
@@ -1006,9 +1005,9 @@ class timthumb
 
         //Try src under docRoot
 
-        if (file_exists($this->docRoot.'/'.$src)) {
-            $this->debug(3, 'Found file as '.$this->docRoot.'/'.$src);
-            $real = $this->realpath($this->docRoot.'/'.$src);
+        if (file_exists($this->docRoot . '/' . $src)) {
+            $this->debug(3, 'Found file as ' . $this->docRoot . '/' . $src);
+            $real = $this->realpath($this->docRoot . '/' . $src);
             if (stripos($real, $this->docRoot) === 0) {
                 return $real;
             } else {
@@ -1017,7 +1016,7 @@ class timthumb
             }
         }
         //Check absolute paths and then verify the real path is under doc root
-        $absolute = $this->realpath('/'.$src);
+        $absolute = $this->realpath('/' . $src);
         if ($absolute && file_exists($absolute)) { //realpath does file_exists check, so can probably skip the exists check here
             $this->debug(3, "Found absolute path: $absolute");
             if (!$this->docRoot) {
@@ -1041,11 +1040,11 @@ class timthumb
         }
 
         foreach ($sub_directories as $sub) {
-            $base .= $sub.'/';
-            $this->debug(3, 'Trying file as: '.$base.$src);
-            if (file_exists($base.$src)) {
-                $this->debug(3, 'Found file as: '.$base.$src);
-                $real = $this->realpath($base.$src);
+            $base .= $sub . '/';
+            $this->debug(3, 'Trying file as: ' . $base . $src);
+            if (file_exists($base . $src)) {
+                $this->debug(3, 'Found file as: ' . $base . $src);
+                $real = $this->realpath($base . $src);
                 if (stripos($real, $this->realpath($this->docRoot)) === 0) {
                     return $real;
                 } else {
@@ -1094,7 +1093,7 @@ class timthumb
         $jsOn = WEBSHOT_JAVASCRIPT_ON ? 'on' : 'off';
         $javaOn = WEBSHOT_JAVA_ON ? 'on' : 'off';
         $pluginsOn = WEBSHOT_PLUGINS_ON ? 'on' : 'off';
-        $proxy = WEBSHOT_PROXY ? ' --http-proxy='.WEBSHOT_PROXY : '';
+        $proxy = WEBSHOT_PROXY ? ' --http-proxy=' . WEBSHOT_PROXY : '';
         $tempfile = tempnam($this->cacheDirectory, 'timthumb_webshot');
         $url = $this->src;
         if (!preg_match('/^https?:\/\/[a-zA-Z0-9\.\-]+/i', $url)) {
@@ -1143,8 +1142,8 @@ class timthumb
         if (!$this->getURL($this->src, $tempfile)) {
             @unlink($this->cachefile);
             touch($this->cachefile);
-            $this->debug(3, 'Error fetching URL: '.$this->lastURLError);
-            $this->error('Error reading the URL you specified from remote host.'.$this->lastURLError);
+            $this->debug(3, 'Error fetching URL: ' . $this->lastURLError);
+            $this->error('Error reading the URL you specified from remote host.' . $this->lastURLError);
 
             return false;
         }
@@ -1154,7 +1153,7 @@ class timthumb
             $this->debug(3, "Remote file has invalid mime type: $mimeType");
             @unlink($this->cachefile);
             touch($this->cachefile);
-            $this->error("The remote file is not a valid image. Mimetype = '".$mimeType."'".$tempfile);
+            $this->error("The remote file is not a valid image. Mimetype = '" . $mimeType . "'" . $tempfile);
 
             return false;
         }
@@ -1219,27 +1218,27 @@ class timthumb
     protected function sendImageHeaders($mimeType, $dataSize)
     {
         if (!preg_match('/^image\//i', $mimeType)) {
-            $mimeType = 'image/'.$mimeType;
+            $mimeType = 'image/' . $mimeType;
         }
         if (strtolower($mimeType) == 'image/jpg') {
             $mimeType = 'image/jpeg';
         }
-        $gmdate_expires = gmdate('D, d M Y H:i:s', strtotime('now +10 days')).' GMT';
-        $gmdate_modified = gmdate('D, d M Y H:i:s').' GMT';
+        $gmdate_expires = gmdate('D, d M Y H:i:s', strtotime('now +10 days')) . ' GMT';
+        $gmdate_modified = gmdate('D, d M Y H:i:s') . ' GMT';
         // send content headers then display image
-        header('Content-Type: '.$mimeType);
+        header('Content-Type: ' . $mimeType);
         header('Accept-Ranges: none'); //Changed this because we don't accept range requests
-        header('Last-Modified: '.$gmdate_modified);
-        header('Content-Length: '.$dataSize);
+        header('Last-Modified: ' . $gmdate_modified);
+        header('Content-Length: ' . $dataSize);
         if (BROWSER_CACHE_DISABLE) {
             $this->debug(3, 'Browser cache is disabled so setting non-caching headers.');
             header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
             header('Pragma: no-cache');
-            header('Expires: '.gmdate('D, d M Y H:i:s', time()));
+            header('Expires: ' . gmdate('D, d M Y H:i:s', time()));
         } else {
             $this->debug(3, 'Browser caching is enabled');
-            header('Cache-Control: max-age='.BROWSER_CACHE_MAX_AGE.', must-revalidate');
-            header('Expires: '.$gmdate_expires);
+            header('Cache-Control: max-age=' . BROWSER_CACHE_MAX_AGE . ', must-revalidate');
+            header('Expires: ' . $gmdate_expires);
         }
 
         return true;
@@ -1315,7 +1314,7 @@ class timthumb
                 $tick = sprintf('%.6f', microtime(true) - $this->lastBenchTime);
             }
             $this->lastBenchTime = microtime(true);
-            error_log('TimThumb Debug line '.__LINE__." [$execTime : $tick]: $msg");
+            error_log('TimThumb Debug line ' . __LINE__ . " [$execTime : $tick]: $msg");
         }
     }
     protected function sanityFail($msg)
@@ -1338,18 +1337,25 @@ class timthumb
         $ourbytes = self::returnBytes(MEMORY_LIMIT);
         if ($inibytes < $ourbytes) {
             ini_set('memory_limit', MEMORY_LIMIT);
-            $this->debug(3, "Increased memory from $inimem to ".MEMORY_LIMIT);
+            $this->debug(3, "Increased memory from $inimem to " . MEMORY_LIMIT);
         } else {
-            $this->debug(3, 'Not adjusting memory size because the current setting is '.$inimem.' and our size of '.MEMORY_LIMIT.' is smaller.');
+            $this->debug(3, 'Not adjusting memory size because the current setting is ' . $inimem . ' and our size of ' . MEMORY_LIMIT . ' is smaller.');
         }
     }
     protected static function returnBytes($size_str)
     {
         switch (substr($size_str, -1)) {
-            case 'M': case 'm': return (int) $size_str * 1048576;
-            case 'K': case 'k': return (int) $size_str * 1024;
-            case 'G': case 'g': return (int) $size_str * 1073741824;
-            default: return $size_str;
+            case 'M':
+            case 'm':
+                return (int) $size_str * 1048576;
+            case 'K':
+            case 'k':
+                return (int) $size_str * 1024;
+            case 'G':
+            case 'g':
+                return (int) $size_str * 1073741824;
+            default:
+                return $size_str;
         }
     }
 
@@ -1428,8 +1434,8 @@ class timthumb
         if (!($s && $s['mime'])) {
             return false;
         }
-        header('Content-Type: '.$s['mime']);
-        header('Content-Length: '.filesize($file));
+        header('Content-Type: ' . $s['mime']);
+        header('Content-Length: ' . filesize($file));
         header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
         header('Pragma: no-cache');
         $bytes = @readfile($file);
