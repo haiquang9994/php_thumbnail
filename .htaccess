@@ -3,9 +3,9 @@
 
     RewriteEngine On
 
-    RewriteRule ^thumb\/(\d+)\/(\d+)\/(.*)$ thumb.php?src=$3&w=$1&h=$2 [QSA,L]
-    RewriteRule ^thumbw\/(\d+)\/(.*)$ thumb.php?src=$2&w=$1 [QSA,L]
-    RewriteRule ^thumbh\/(\d+)\/(.*)$ thumb.php?src=$2&h=$1 [QSA,L]
+    RewriteRule ^thumb\/(\d+)\/(\d+)\/(.*)$ timthumb.php?src=$3&w=$1&h=$2 [QSA,L]
+    RewriteRule ^thumbw\/(\d+)\/(.*)$ timthumb.php?src=$2&w=$1 [QSA,L]
+    RewriteRule ^thumbh\/(\d+)\/(.*)$ timthumb.php?src=$2&h=$1 [QSA,L]
 
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [QSA,L]
